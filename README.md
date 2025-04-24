@@ -39,3 +39,16 @@ synthetic-data-evaluation/
 │   ├── main_label_flipping.py      # Main script for label flipping attack
 │   ├── main_synthetic_evaluation.py  # Main script for non-attack synthetic evaluation
 ```
+
+## RQ2 folder
+This folder contains Python scripts to verify the integrity and quality of synthetic data generated in an outsourcing scenario, using Schnorr-based Non-Interactive Zero-Knowledge Proofs (NIZKPs). The system evaluates synthetic data under various attack scenarios (data source, quality fraud, privacy leak, distribution tamper) and a non-attack baseline.
+
+### Project Structure
+```
+synthetic-data-verification/
+│   ├── data_processing.py       # Dataset loading, preprocessing, and CTGAN training
+│   ├── attacks.py              # Attack simulation logic (data source, quality fraud, privacy leak, distribution tamper)
+│   ├── metrics.py              # Quality and privacy metric computation
+│   ├── zkp_verification.py     # ZKP client-server verification logic
+│   ├── main.py                 # Main script for experiment coordination and result reporting
+```
