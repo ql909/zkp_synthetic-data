@@ -1,7 +1,7 @@
 This repository contains code for the Trustworthy Exchange of Synthetic Data Through Zero-Knowledge Proof paper.
 
 
-The code has been tested with the following setup:
+## The code has been tested with the following setup:
 
 Python             3.11  
 ctgan              0.11.0  
