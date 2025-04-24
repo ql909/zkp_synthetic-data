@@ -10,6 +10,16 @@ pip install sdv
 pip install synthcity
 ```
 
+### Datasets
+
+Adult: Census income data (```income>50K``` as target).
+
+Law: Law school data (```first_pf``` as target).
+
+Loan: Bank personal loan data (```Personal Loan``` as target).
+
+Note: Update dataset paths in src/data_loader.py to match your local environment.
+
 ## RQ1 folder
 This folder contains Python scripts to evaluate synthetic data generation using multiple generators (CTGAN, TVAE, NFLOW) under two types of attacks (Feature Selection Attack and Label Flipping Attack) and a non-attack baseline. The code evaluates synthetic data quality using distribution similarity metrics (Wasserstein Distance, KS Score, KL Divergence) and machine learning model performance (Logistic Regression, Random Forest, MLP).
 
