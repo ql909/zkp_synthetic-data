@@ -3,6 +3,7 @@ This repository contains code for the Trustworthy Exchange of Synthetic Data Thr
 
 ## The code has been tested with the following setup:
 
+ > 
 Python             3.11  
 ctgan              0.11.0  
 torch              >= 2.0.0  
