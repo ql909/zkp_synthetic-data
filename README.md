@@ -7,5 +7,6 @@ This repository contains code for the Trustworthy Exchange of Synthetic Data Thr
 pip install -U noknow
 pip install ctgan
 pip install sdv
+pip install synthcity
 ```
 
