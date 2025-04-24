@@ -19,16 +19,6 @@ def compute_kld(real, synthetic):
     synthetic_hist = np.histogram(synthetic, bins=50, density=True)[0]
     return entropy(np.clip(real_hist, 1e-10, None), np.clip(synthetic_hist, 1e-10, None))
 
-def compute_dcr(real, synthetic):
-    """Compute Distance to Closest Record."""
-    return np.mean(np.min(euclidean_distances(real, synthetic), axis=1))
-
-def compute_nndr(real, synthetic):
-    """Compute Nearest Neighbor Distance Ratio."""
-    real_dist = euclidean_distances(real)
-    synth_dist = euclidean_distances(synthetic)
-    return np.mean(np.mean(real_dist, axis=0) / (np.mean(synth_dist, axis=0) + 1e-10))
-
 def compute_ims(real, synthetic):
     """Compute Identity Matching Score."""
     return sum(1 for r in real if any(np.allclose(r, s) for s in synthetic[:400])) / len(real)
