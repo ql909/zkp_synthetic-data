@@ -14,6 +14,7 @@ pip install synthcity
 This folder contains Python scripts to evaluate synthetic data generation using multiple generators (CTGAN, TVAE, NFLOW) under two types of attacks (Feature Selection Attack and Label Flipping Attack) and a non-attack baseline. The code evaluates synthetic data quality using distribution similarity metrics (Wasserstein Distance, KS Score, KL Divergence) and machine learning model performance (Logistic Regression, Random Forest, MLP).
 
 ### Project Structure
+```
 synthetic-data-evaluation/
 ├── src/
 │   ├── __init__.py
@@ -27,3 +28,4 @@ synthetic-data-evaluation/
 │   ├── main_feature_selection.py    # Main script for feature selection attack
 │   ├── main_label_flipping.py      # Main script for label flipping attack
 │   ├── main_synthetic_evaluation.py  # Main script for non-attack synthetic evaluation
+```
