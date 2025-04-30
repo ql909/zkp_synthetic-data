@@ -9,16 +9,11 @@ import traceback
 
 logger = logging.getLogger(__name__)
 
-def compute_dynamic_thresholds(data_size, base_thresholds, historical_variability=1.0):
-    """Compute dynamic thresholds."""
-    adjustment = historical_variability * (1 + 0.5 / np.sqrt(data_size))
-    return {
-        k: v * adjustment if k in ['wd', 'ks', 'kld', 'ims', 'anonymity'] else v / adjustment
-        for k, v in base_thresholds.items()
-    }
 
+# ----------------------
+# Client with Adversarial Testing
+# ----------------------
 def client(iq: Queue, oq: Queue, real_data, synthetic_data, dataset_hash, synth_hash, thresholds, stats, result_queue, attack_type=None):
-    """Client function for ZKP verification."""
     start_time = time.time()
     comm_cost, zkp_time = 0, 0
     metric_times, metrics = {}, {}
@@ -33,7 +28,6 @@ def client(iq: Queue, oq: Queue, real_data, synthetic_data, dataset_hash, synth_
 
         client_zk = ZK.new(curve_name="secp256k1", hash_alg="sha3_256")
         logger.info("Client: ZK initialized")
-        from metrics import compute_metrics
         metrics = compute_metrics(real_data, synthetic_data)
 
         violations = [f"{m.upper()} violation: {metrics[m]:.4f} {'>' if m in ['wd', 'ks', 'kld', 'ims', 'anonymity'] else '<'} {thresholds[m]:.4f}"
@@ -66,7 +60,6 @@ def client(iq: Queue, oq: Queue, real_data, synthetic_data, dataset_hash, synth_
         zkp_time = (time.time() - zkp_start) * 1000
         logger.info(f"Client: Completed with result: {result}")
 
-        from attacks import add_to_blockchain
         transaction = {
             "dataset_hash": dataset_hash,
             "synth_hash": synth_hash,
@@ -90,10 +83,22 @@ def client(iq: Queue, oq: Queue, real_data, synthetic_data, dataset_hash, synth_
 
     except Exception as e:
         logger.error(f"Client error: {str(e)}\n{traceback.format_exc()}")
-        result_queue.put({"result": "Error", "violations": [str(e)], "hash_status": "Fail"})
+        result_queue.put({
+            "zkp_time": "N/A",
+            "total_time": (time.time() - start_time) * 1000,
+            "metric_times": metric_times,
+            "cost": comm_cost,
+            "result": str(e),
+            "metrics": {},  # Empty metrics on error
+            "violations": [str(e)],
+            "attack_type": attack_type,
+            "hash_status": "Fail"
+        })
 
+# ----------------------
+# Server with Enhanced Verification
+# ----------------------
 def server(iq: Queue, oq: Queue, dataset_hash, expected_stats):
-    """Server function for ZKP verification."""
     try:
         logger.info(f"Server: Processing hash {dataset_hash[:16]}...")
         server_zk = ZK.new(curve_name="secp256k1", hash_alg="sha3_256")
@@ -141,3 +146,5 @@ def server(iq: Queue, oq: Queue, dataset_hash, expected_stats):
     except Exception as e:
         logger.error(f"Server error: {str(e)}\n{traceback.format_exc()}")
         oq.put(f"Server error: {str(e)}", timeout=30)
+
+
