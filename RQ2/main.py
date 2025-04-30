@@ -15,6 +15,9 @@ from metrics import compute_metrics
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+# ----------------------
+# Main Experiment
+# ----------------------
 def perform_statistical_analysis(metrics_normal, metrics_attack, metric_name):
     """Perform statistical analysis between normal and attack metrics."""
     normal_values = [m[metric_name] for m in metrics_normal if metric_name in m]
@@ -64,7 +67,7 @@ def main():
         sampled_data = data.sample(n=min(500, len(data)), random_state=42)
         sampled_scaled = scaler.transform(sampled_data)
         synthetic_data = ctgan.sample(500).values
-        wd_base = np.mean([compute_metrics(sampled_scaled, synthetic_data)['wd'] for _ in range(5)])
+        wd_base = np.mean([wasserstein_distance(sampled_scaled.flatten(), synthetic_data.flatten()) for _ in range(5)])
         base_thresholds['wd'] = wd_base * 1.5
         logger.info(f"Dataset {name} base WD threshold: {base_thresholds['wd']:.4f}")
 
@@ -101,10 +104,21 @@ def main():
                 for t in threads: t.start()
                 for t in threads: t.join(timeout=600)
 
-                result = result_queue.get(timeout=120) if not result_queue.empty() else {"result": "Timeout", "violations": ["Timeout"], "hash_status": "Fail"}
+                result = result_queue.get(timeout=120) if not result_queue.empty() else {
+                    "result": "Timeout",
+                    "violations": ["Timeout"],
+                    "hash_status": "Fail",
+                    "metrics": {}
+                }
                 zkp_status = result.get("result", "N/A")
                 quality_status = "Pass" if not result.get("violations") else "Fail"
                 hash_status = result.get("hash_status", "Fail")
+                # Safely format metrics, handling 'N/A' strings
+                wd_value = result.get('metrics', {}).get('wd', 'N/A')
+                anonymity_value = result.get('metrics', {}).get('anonymity', 'N/A')
+                wd_formatted = f"{wd_value:.4f}" if isinstance(wd_value, (int, float)) else wd_value
+                anonymity_formatted = f"{anonymity_value:.4f}" if isinstance(anonymity_value, (int, float)) else anonymity_value
+
                 results.append({
                     "Dataset": name,
                     "Size": size,
@@ -115,8 +129,8 @@ def main():
                     "Quality Status": quality_status,
                     "Hash Status": hash_status,
                     "Violations": "\n".join(result.get("violations", [])) or "None",
-                    "WD": f"{result.get('metrics', {}).get('wd', 'N/A'):.4f}",
-                    "Anonymity": f"{result.get('metrics', {}).get('anonymity', 'N/A'):.4f}"
+                    "WD": wd_formatted,
+                    "Anonymity": anonymity_formatted
                 })
                 all_metrics[(name, attack)].append(result.get("metrics", {}))
 
@@ -137,20 +151,6 @@ def main():
                     "Mean Normal": stat["mean_normal"],
                     "Mean Attack": stat["mean_attack"]
                 })
-
-    # Visualization
-    for name in datasets:
-        plt.figure(figsize=(10, 6))
-        for attack in attack_types:
-            wd_values = [m.get('wd', 0) for m in all_metrics[(name, attack)]]
-            if wd_values:
-                sizes = [s for s, a in all_metrics if a == attack and s[0] == name][:len(wd_values)]
-                plt.plot(sizes, wd_values, label=f"WD ({attack or 'Normal'})")
-        plt.xlabel("Dataset Size")
-        plt.ylabel("Wasserstein Distance")
-        plt.title(f"WD Across Attacks for {name}")
-        plt.legend()
-        plt.show()
 
     print("\nFinal Test Results:")
     print(tabulate(results, headers="keys", tablefmt="grid", stralign="left"))
