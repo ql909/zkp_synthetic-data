@@ -5,19 +5,23 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def compute_statistical_summary(data):
-    """Compute statistical summary for dataset verification."""
-    return {
-        "mean": np.mean(data, axis=0).tolist(),
-        "std": np.std(data, axis=0).tolist(),
-        "quantiles": np.quantile(data, [0.25, 0.5, 0.75], axis=0).tolist()
-    }
-
+# ----------------------
+# Hash and Threshold Functions
+# ----------------------
 def generate_dataset_hash(data, stats, nonce=""):
     """Generate hash including statistical summary."""
     stats_str = json.dumps(stats, sort_keys=True)
     return hashlib.sha256((data.tobytes() + stats_str.encode() + nonce.encode())).hexdigest()
 
+def compute_dynamic_thresholds(data_size, base_thresholds, historical_variability=1.0):
+    adjustment = historical_variability * (1 + 0.5 / np.sqrt(data_size))
+    return {
+        k: v * adjustment if k in ['wd', 'ks', 'kld', 'ims', 'anonymity'] else v / adjustment
+        for k, v in base_thresholds.items()
+    }
+# ----------------------
+# Adversarial Attack Simulations
+# ----------------------
 def simulate_data_source_attack(real_data, ctgan, correct_hash, correct_stats):
     """Simulate data source attack with incorrect dataset."""
     try:
