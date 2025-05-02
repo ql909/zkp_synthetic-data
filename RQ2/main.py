@@ -341,7 +341,7 @@ def main():
         nflow_models[name] = nflow
 
     data_sizes = [500, 1000, 5000]
-    base_thresholds = {'wd': 1.0, 'ks': 0.5, 'kld': 10.0, 'ims': 0.03, 'anonymity': 0.7}
+    base_thresholds = {'wd': 1.0, 'ks': 0.5, 'kld': 10.0, 'ims': 0.03, 'anonymity': 0.75}
     attack_types = [None, "data_source", "quality_fraud", "privacy_leak", "distribution_tamper"]
     results, all_metrics = [], defaultdict(list)
 
