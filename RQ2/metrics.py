@@ -36,7 +36,7 @@ def compute_metrics(real_data, synthetic_data):
         real_flat, synth_flat = real_data.flatten(), synthetic_data.flatten()
         metrics = {}
         for metric, func in [('wd', compute_wd), ('ks', compute_ks), ('kld', compute_kld),
-                            ('dcr', compute_dcr), ('nndr', compute_nndr), ('ims', compute_ims),
+                            ('ims', compute_ims),
                             ('anonymity', compute_anonymity_score)]:
             metrics[metric] = func(real_flat if metric in ['wd', 'ks', 'kld'] else real_data,
                                   synth_flat if metric in ['wd', 'ks', 'kld'] else synthetic_data)
