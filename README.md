@@ -1,4 +1,4 @@
-This repository contains code for the Trustworthy Exchange of Synthetic Data Through Zero-Knowledge Proof paper.
+This repository contains code for the Trustworthy Trading of Synthetic Data Using Zero-Knowledge Proofs paper.
 
 
 
