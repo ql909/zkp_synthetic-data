@@ -1,0 +1,77 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+// DatasetHashRegistry contract for registering and verifying dataset hashes
+contract DatasetHashRegistry {
+    // Structure to store dataset hash details
+    struct DatasetEntry {
+        bytes32 hash; // Hash of the dataset (H_d)
+        string datasetId; // Unique identifier for the dataset
+        uint256 timestamp; // Timestamp of registration
+        address owner; // Address of the registrant (Client A)
+        bool verified; // Flag indicating if the hash is verified
+    }
+
+    // Mapping from dataset ID to its entry
+    mapping(string => DatasetEntry) public datasetRegistry;
+    // List of all dataset IDs for enumeration
+    string[] public datasetList;
+
+    // Events for logging registration and verification
+    event HashRegistered(string indexed datasetId, bytes32 hash, address indexed owner, uint256 timestamp);
+    event HashVerified(string indexed datasetId, bytes32 hash, address indexed verifier);
+
+    // Modifier to check if a dataset ID is not already registered
+    modifier notRegistered(string memory datasetId) {
+        require(bytes(datasetRegistry[datasetId].datasetId).length == 0, "Dataset ID already registered");
+        _;
+    }
+
+    // Modifier to check if a dataset ID exists
+    modifier exists(string memory datasetId) {
+        require(bytes(datasetRegistry[datasetId].datasetId).length > 0, "Dataset ID not found");
+        _;
+    }
+
+    // Function to register a dataset hash
+    function registerHash(string memory datasetId, bytes32 hash) public notRegistered(datasetId) {
+        require(bytes(datasetId).length > 0, "Dataset ID cannot be empty");
+        require(hash != bytes32(0), "Hash cannot be zero");
+
+        datasetRegistry[datasetId] = DatasetEntry({
+            hash: hash,
+            datasetId: datasetId,
+            timestamp: block.timestamp,
+            owner: msg.sender,
+            verified: false
+        });
+        datasetList.push(datasetId);
+
+        emit HashRegistered(datasetId, hash, msg.sender, block.timestamp);
+    }
+
+    // Function to verify a dataset hash
+    function verifyHash(string memory datasetId, bytes32 hash) public exists(datasetId) {
+        require(datasetRegistry[datasetId].hash == hash, "Hash does not match registered hash");
+        require(!datasetRegistry[datasetId].verified, "Hash already verified");
+
+        datasetRegistry[datasetId].verified = true;
+        emit HashVerified(datasetId, hash, msg.sender);
+    }
+
+    // Function to retrieve dataset hash details
+    function getHash(string memory datasetId) public view exists(datasetId) returns (bytes32, uint256, address, bool) {
+        DatasetEntry memory entry = datasetRegistry[datasetId];
+        return (entry.hash, entry.timestamp, entry.owner, entry.verified);
+    }
+
+    // Function to check if a dataset ID is registered
+    function isRegistered(string memory datasetId) public view returns (bool) {
+        return bytes(datasetRegistry[datasetId].datasetId).length > 0;
+    }
+
+    // Function to get the list of all registered dataset IDs
+    function getDatasetList() public view returns (string[] memory) {
+        return datasetList;
+    }
+}
