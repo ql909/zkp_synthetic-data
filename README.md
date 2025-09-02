@@ -51,5 +51,5 @@ synthetic-data-verification/
 │   ├── metrics.py              # Quality and privacy metric computation
 │   ├── zkp_verification.py     # ZKP client-server verification logic
 │   ├── main.py                 # Main script for experiment coordination and result reporting
-│   ├── .py                 # blockchain
+│   ├── DatasetHashRegistry.txt                 # blockchain
 ```
