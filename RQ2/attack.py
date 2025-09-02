@@ -13,12 +13,19 @@ def generate_dataset_hash(data, stats, nonce=""):
     stats_str = json.dumps(stats, sort_keys=True)
     return hashlib.sha256((data.tobytes() + stats_str.encode() + nonce.encode())).hexdigest()
 
-def compute_dynamic_thresholds(data_size, base_thresholds, historical_variability=1.0):
-    adjustment = historical_variability * (1 + 0.5 / np.sqrt(data_size))
-    return {
-        k: v * adjustment if k in ['wd', 'ks', 'kld', 'ims', 'anonymity'] else v / adjustment
-        for k, v in base_thresholds.items()
-    }
+def compute_dynamic_thresholds(data_size, base_thresholds):
+    """Compute dynamic thresholds using an improved formula"""
+    alpha_m = {'wd': 1.0, 'ks': 1.0, 'kld': 1.0, 'ims': 0.5, 'anonymity': 0.5}  # Scale sensitivity coefficients
+    beta_m = {'wd': 0.5, 'ks': 0.5, 'kld': 0.5, 'ims': 0.2, 'anonymity': 0.2}   # Variability sensitivity coefficients
+    thresholds = {}
+    for metric, base_value in base_thresholds.items():
+        alpha = alpha_m.get(metric, 0.5)
+        beta = beta_m.get(metric, 0.2)
+        adjustment = (1 + alpha / np.sqrt(data_size)) * (1 + beta / data_size)
+        thresholds[metric] = base_value * adjustment
+    logger.info(f"Dynamic thresholds: {thresholds}")
+    return thresholds
+
 # ----------------------
 # Adversarial Attack Simulations
 # ----------------------
