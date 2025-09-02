@@ -68,3 +68,27 @@ def simulate_distribution_tamper_attack(real_data, ctgan):
     except Exception as e:
         logger.error(f"Error in distribution tamper attack: {str(e)}")
         raise
+
+def simulate_low_quality_model_attack(data, scaler, size):
+    """Simulate an attack using a low-quality GMM model"""
+    try:
+        gmm = train_gmm(data, n_components=10)
+        real_scaled, synthetic_scaled = sample_data(data, size, scaler, gmm, model_type='gmm')
+        logger.info("Low-quality model attack simulation completed")
+        return real_scaled, synthetic_scaled
+    except Exception as e:
+        logger.error(f"Low-quality model attack error: {str(e)}")
+        raise
+
+def simulate_low_epochs_model_attack(data, scaler, size, epochs=10, model_type='ctgan'):
+    """Simulate an attack using a low-epoch model (CTGAN, NFlow, or TVAE)"""
+    try:
+        if model_type not in ['ctgan', 'nflow', 'tvae']:
+            raise ValueError(f"Unsupported model_type: {model_type}. Choose 'ctgan', 'nflow', or 'tvae'.")
+        _, model, _ = preprocess_and_train_model(data, epochs=epochs, model_type=model_type)
+        real_scaled, synthetic_scaled = sample_data(data, size, scaler, model, model_type=model_type)
+        logger.info(f"Low-epoch {model_type.upper()} attack simulation completed, epochs={epochs}")
+        return real_scaled, synthetic_scaled
+    except Exception as e:
+        logger.error(f"Low-epoch {model_type.upper()} attack error: {str(e)}")
+        raise
