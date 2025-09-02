@@ -20,7 +20,7 @@ Loan: Bank personal loan data (```Personal Loan``` as target).
 
 Note: Update dataset paths in src/data_loader.py to match your local environment.
 
-## RQ1 folder
+## technical motivation folder
 This folder contains Python scripts to evaluate synthetic data generation using multiple generators (CTGAN, TVAE, NFLOW) under two types of attacks (Feature Selection Attack and Label Flipping Attack) and a non-attack baseline. The code evaluates synthetic data quality using distribution similarity metrics (Wasserstein Distance, KS Score, KL Divergence) and machine learning model performance (Logistic Regression, Random Forest, MLP).
 
 ### Project Structure
@@ -40,7 +40,7 @@ synthetic-data-evaluation/
 │   ├── main_synthetic_evaluation.py  # Main script for non-attack synthetic evaluation
 ```
 
-## RQ2 folder
+## RQ folder
 This folder contains Python scripts to verify the integrity and quality of synthetic data generated in an outsourcing scenario, using Schnorr-based Non-Interactive Zero-Knowledge Proofs (NIZKPs). The system evaluates synthetic data under various attack scenarios (data source, quality fraud, privacy leak, distribution tamper) and a non-attack baseline.
 
 ### Project Structure
@@ -51,4 +51,5 @@ synthetic-data-verification/
 │   ├── metrics.py              # Quality and privacy metric computation
 │   ├── zkp_verification.py     # ZKP client-server verification logic
 │   ├── main.py                 # Main script for experiment coordination and result reporting
+│   ├── .py                 # blockchain
 ```
